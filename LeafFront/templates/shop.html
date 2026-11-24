@@ -1,0 +1,418 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop - Leafix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+
+  <style>
+    :root {
+      --accent-start: #a4e44d;
+      --accent-mid: #ffeb3b;
+      --accent-end: #4caf50;
+      --text: #1a2a1f;
+      --text-dim: #4a6b5f;
+      --bg-card: rgba(249, 249, 245, 0.85);
+      --border-light: rgba(76,175,80,0.22);
+      --shadow: 0 10px 25px rgba(76,175,80,0.25);
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: var(--text);
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url('https://i.pinimg.com/736x/c0/a8/a7/c0a8a72d665bedaae18d457e01e9986c.jpg') center/cover no-repeat;
+      opacity: 0.48;
+      filter: brightness(0.85) saturate(1.05) contrast(1.1);
+      z-index: -2;
+      pointer-events: none;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(240, 250, 235, 0.58);
+      backdrop-filter: blur(2px);
+      z-index: -1;
+    }
+    .leaves-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .leaf {
+      position: absolute;
+      width: 70px;
+      height: 90px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.38;
+      animation: fall linear infinite;
+      will-change: transform, opacity;
+      pointer-events: none;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-120vh) rotate(0deg) translateX(0); opacity: 0; }
+      10% { opacity: 0.55; }
+      90% { opacity: 0.48; }
+      100% { transform: translateY(120vh) rotate(720deg) translateX(var(--sway)); opacity: 0; }
+    }
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 1.2rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(249,249,245, 0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(76,175,80,0.22);
+    }
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #4caf50;
+      letter-spacing: 1px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.2rem;
+    }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: #4caf50;
+    }
+    main {
+      position: relative;
+      z-index: 5;
+      padding: 140px 5% 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .intro-text {
+      text-align: center;
+      font-size: 1.2rem;
+      color: var(--text-dim);
+      max-width: 800px;
+      margin: 0 auto 4rem;
+      line-height: 1.6;
+    }
+    .highlight {
+      color: #4caf50;
+      font-weight: 600;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    .product-card {
+      background: rgba(249, 249, 245, 0.7);
+      border: 1px solid rgba(76,175,80,0.22);
+      border-radius: 16px;
+      padding: 1.8rem 1.4rem;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      cursor: pointer;
+      position: relative;
+    }
+    .product-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow);
+      border-color: rgba(76,175,80,0.4);
+    }
+    .product-image {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 1.2rem;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #a4e44d, #4caf50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .product-name {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: #4caf50;
+    }
+    .product-pricing {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 0.8rem 0;
+      font-size: 1.2rem;
+    }
+    .product-mrp {
+      color: #888;
+      text-decoration: line-through;
+      font-size: 1.1rem;
+    }
+    .product-price {
+      color: #000;
+      font-weight: 800;
+    }
+    .product-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
+    }
+    .btn-action {
+      flex: 1;
+      min-width: 110px;
+      max-width: 140px;
+      padding: 0.7rem 1.2rem;
+      font-weight: 700;
+      font-size: 0.88rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      text-align: center;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-view {
+      background: linear-gradient(135deg, #4caf50, #a4e44d);
+      color: white;
+    }
+    .btn-add {
+      background: linear-gradient(135deg, #a4e44d, #ffeb3b, #4caf50);
+      color: #1a2a1f;
+    }
+    .btn-action:hover {
+      transform: scale(1.04);
+      box-shadow: var(--shadow);
+    }
+    footer {
+      text-align: center;
+      padding: 3rem 5% 2rem;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      border-top: 1px solid rgba(76,175,80,0.15);
+    }
+    @media (max-width: 768px) {
+      nav { padding: 1rem 5%; flex-direction: column; gap: 1rem; }
+      .nav-links { flex-wrap: wrap; justify-content: center; gap: 1.4rem; }
+      main { padding: 120px 5% 60px; }
+      .products-grid { gap: 1.8rem; }
+      .product-buttons { flex-direction: column; gap: 10px; }
+      .btn-action { max-width: none; }
+    }
+    /* Remove underline from the link entirely */
+.product-link {
+  text-decoration: none;
+  color: inherit;           /* keeps text color consistent */
+  display: inline-block;    /* or block, depending on your card layout */
+}
+
+/* Optional: subtle hover effect */
+.product-link:hover .btn-view {
+  opacity: 0.9;
+  transform: scale(1.03);
+  transition: all 0.2s ease;
+}
+
+/* Small green button styling */
+.btn-action.btn-view {
+  display: inline-flex;          /* keeps icon + text in one line */
+  align-items: center;           /* vertical center */
+  gap: 6px;                      /* space between icon and "View" */
+  padding: 8px 16px;             /* small but comfortable size */
+  background-color: #28a745;     /* nice green (Bootstrap success green) */
+  color: white;
+  border: none;                  /* no border for clean look */
+  border-radius: 30px;           /* strong curve → pill/rounded shape */
+  font-size: 14px;               /* compact text */
+  font-weight: 500;
+  text-decoration: none;         /* removes the underline under "View" */
+  cursor: pointer;
+  transition: all 0.2s ease;     /* smooth hover */
+}
+
+.btn-action.btn-view:hover {
+  background-color: #218838;     /* darker green on hover */
+  transform: translateY(-2px);   /* slight lift effect */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* subtle shadow */
+}
+
+/* Optional: make icon a bit smaller */
+.btn-action.btn-view i {
+  font-size: 0.95em;
+}  </style>
+</head>
+<body>
+
+<div class="overlay"></div>
+<div class="leaves-bg" id="leaves"></div>
+
+<nav>
+  <div class="logo">LEAFIX</div>
+  <div class="nav-links">
+    <a href="{% url 'home' %}">Home</a>
+    <a href="#" class="active">Shop</a>
+    <a href="{% url 'diseaseinfo' %}">Diseases & Precautions</a>
+    <a href="{% url 'about' %}">About</a>
+    <a href="{% url 'cart' %}">Cart</a>
+  </div>
+</nav>
+
+<main>
+  <p class="intro-text">
+    Discover natural, organic solutions for healthier plants and better harvests. 
+    From pest control to disease management — <span class="highlight">Leafix</span> has you covered.
+  </p>
+
+  <div class="products-grid">
+    {% for p in products %}
+      <div class="product-card" data-url="{% url 'productmore' p.id %}">
+        <div class="product-image">
+          {% if p.image %}
+            <img src="{{ p.image.url }}" alt="{{ p.productname }}" loading="lazy">
+          {% else %}
+            <span>No Image</span>
+          {% endif %}
+        </div>
+        <div class="product-name">{{ p.productname }}</div>
+        <div class="product-pricing">
+          <span class="product-mrp">MRP: ₹{{ p.mrp|floatformat:2 }}</span>
+        </div>
+        <div class="product-pricing">
+          <span class="product-price">Price: ₹{{ p.price|floatformat:2 }}</span>
+        </div>
+<a href="{% url 'productmore' p.id %}" class="product-link">
+  <div class="product-buttons">
+    <button type="button" class="btn-action btn-view">
+      <i class="fas fa-cart-plus fa-sm"></i> View
+    </button>
+  </div>
+</a>      
+</div>
+    {% empty %}
+      <p style="text-align:center; font-size:1.2rem; color:var(--text-dim); grid-column: 1 / -1;">
+        No products available at the moment.
+      </p>
+    {% endfor %}
+  </div>
+</main>
+
+<footer>
+  © 2026 Leafix — Tools & treatments for healthier plants and better harvests. Made with love for sustainable farming.
+</footer>
+
+<!-- Falling leaves animation -->
+<script>
+const leafImages = [
+  'https://static.vecteezy.com/system/resources/thumbnails/040/216/920/small/ai-generated-mango-leaf-clip-art-free-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/022/218/957/small/yellow-leaves-isolated-on-a-transparent-background-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/previews/021/346/717/non_2x/brown-dried-leaf-isolated-on-a-transparent-background-png.png?w=120',
+  'https://pngfile.net/files/preview/1280x678/43817508871430jtlwdim482dx4cknq4d5re1ajvldggkgcqj7yvoze1htnp0y9ykzqc548zpw3d6d9gkqfq0lsu2z5k78n2ej0ltiq3jluycisqu.png?w=120'
+];
+
+function createLeaf() {
+  const leaf = document.createElement('div');
+  leaf.className = 'leaf';
+  const randomImg = leafImages[Math.floor(Math.random() * leafImages.length)];
+  leaf.style.backgroundImage = `url('${randomImg}')`;
+  const scale = 0.6 + Math.random() * 1.0;
+  leaf.style.width = (70 * scale) + 'px';
+  leaf.style.height = (90 * scale) + 'px';
+  leaf.style.left = Math.random() * 100 + 'vw';
+  const duration = 16 + Math.random() * 20;
+  leaf.style.animationDuration = duration + 's';
+  leaf.style.animationDelay = Math.random() * 12 + 's';
+  const sway = (Math.random() - 0.5) * 120 + 'vw';
+  leaf.style.setProperty('--sway', sway);
+  leaf.style.transform = `rotate(${Math.random() * 100 - 50}deg)`;
+  document.getElementById('leaves').appendChild(leaf);
+  setTimeout(() => leaf.remove(), (duration + 6) * 1000);
+}
+
+setInterval(createLeaf, 650);
+for (let i = 0; i < 22; i++) {
+  setTimeout(createLeaf, i * 300);
+}
+</script>
+
+<!-- Product card click handler -->
+<script>
+  document.querySelectorAll('.product-card').forEach(card => {
+    card.addEventListener('click', function(e) {
+      if (e.target.closest('button, a')) return;
+      window.location.href = this.dataset.url;
+    });
+  });
+</script>
+<style>
+  /* Optional: extra styling for SweetAlert2 to better match your theme */
+  .swal2-nature-theme {
+    border: 1px solid rgba(129, 199, 132, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  }
+  .swal2-title-custom {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    color: var(--accent-start);           /* #c5f082 – bright green */
+  }
+  .swal2-text-custom {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-dim);               /* #c8e6c9 – soft green */
+  }
+  .swal2-confirm-custom, .swal2-cancel-custom {
+    font-weight: 600;
+    padding: 12px 28px !important;
+    border-radius: 30px !important;
+    font-size: 1.05rem !important;
+  }
+</style>
+</body>
+</html>

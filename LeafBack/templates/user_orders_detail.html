@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Orders for {{ username }} • Leafix Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <!-- Hidden CSRF input (required for POST) -->
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+  <style>
+    :root {
+      --bg-main: #0a0a0a;
+      --bg-card: #111111;
+      --text-main: #e0e0e0;
+      --text-muted: #888888;
+      --green: #00ff9d;
+      --green-dark: #00c47a;
+      --border: #222;
+      --error: #ff4d4d;
+      --success: #00ff9d;
+      --gray: #555;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 2rem;
+      border: 1px solid var(--border);
+    }
+    h1 {
+      color: var(--green);
+      margin-bottom: 1.5rem;
+      text-align: center;
+      font-size: 2rem;
+    }
+    .info {
+      background: #1a1a1a;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+    .info p { margin: 0.8rem 0; }
+    .info strong { color: var(--green); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: #0d0d0d;
+      color: var(--green);
+      font-weight: 600;
+    }
+    .total {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--green);
+      text-align: right;
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(0,255,157,0.1);
+      border-radius: 8px;
+    }
+    .buttons {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-top: 2.5rem;
+    }
+    .btn {
+      padding: 0.9rem 2.2rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-confirm {
+      background: var(--green);
+      color: black;
+    }
+    .btn-confirm:hover {
+      background: var(--green-dark);
+      transform: translateY(-2px);
+    }
+    .btn-back {
+      background: var(--gray);
+      color: white;
+    }
+    .btn-back:hover {
+      background: #666;
+    }
+  </style>
+</head>
+<body data-username="{{ username|escapejs }}" 
+      data-email="{{ email|default:''|escapejs }}" 
+      data-csrf="{{ csrf_token }}">
+
+<div class="container">
+  <h1>Orders for {{ username }}</h1>
+
+  <div class="info">
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>Address:</strong> {{ address }}</p>
+  </div>
+
+  {% if error %}
+    <p style="color: var(--error); text-align: center; font-size: 1.2rem;">{{ error }}</p>
+  {% else %}
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Product</th>
+          <th>Quantity</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td>#{{ order.id }}</td>
+          <td>{{ order.productname }}</td>
+          <td>{{ order.quantity }}</td>
+          <td>₹{{ order.totalprice|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="total">
+      Grand Total: ₹{{ grand_total|floatformat:2 }}
+    </div>
+  {% endif %}
+
+  <div class="buttons">
+    <button class="btn btn-back" onclick="window.location.href='{% url 'order' %}'">Go Back</button>
+    {% if orders %}
+      <button class="btn btn-confirm" onclick="confirmAndProcess()">Confirm & Send Email</button>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+// Get data safely from template (no red lines)
+const username = "{{ username|escapejs }}";
+const defaultEmail = "{{ email|default:''|escapejs }}";
+const csrfToken = "{{ csrf_token }}";
+
+// Confirm & Process
+function confirmAndProcess() {
+  Swal.fire({
+    title: 'Confirm Order & Send Email?',
+    html: `
+      <p>Confirmation email will be sent to:</p>
+      <input id="swal-email" class="swal2-input" type="email" value="${defaultEmail}">
+      <p style="margin-top:1rem; color:#ff4d4d; font-size:0.95rem;">
+        <strong>WARNING:</strong> All orders for ${username} will be permanently removed!
+      </p>
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Confirm & Proceed',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#00ff9d',
+    cancelButtonColor: '#444',
+    background: '#111111',
+    color: '#e0e0e0',
+    backdrop: 'rgba(10,10,10,0.85)',
+    preConfirm: () => {
+      const email = document.getElementById('swal-email').value.trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        Swal.showValidationMessage('Please enter a valid email address');
+        return false;
+      }
+      return email;
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const email = result.value;
+
+      Swal.fire({
+        title: 'Processing...',
+        text: 'Sending email and deleting orders...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => { Swal.showLoading(); }
+      });
+
+      // Step 1: Send email - using correct Leafback prefix
+      fetch("{% url 'send_order_confirmation' %}", {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+          username: username,
+          email: email
+        })
+      })
+      .then(response => {
+        console.log('Email request status:', response.status);
+        if (!response.ok) throw new Error(`Email failed: ${response.status}`);
+        return response.json();
+      })
+      .then(data => {
+        console.log('Email response:', data);
+        if (!data.success) throw new Error(data.message || 'Email failed');
+
+        // Step 2: Delete orders
+        return fetch("{% url 'delete_all_user_orders' username %}", {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'X-CSRFToken': csrfToken
+          }
+        });
+      })
+      .then(response => {
+        console.log('Delete request status:', response.status);
+        if (!response.ok) throw new Error(`Delete failed: ${response.status}`);
+        return response.json();
+      })
+      .then(data => {
+        console.log('Delete response:', data);
+        if (!data.success) throw new Error(data.message || 'Delete failed');
+
+        Swal.fire({
+          title: 'Success!',
+          text: 'Confirmation sent successfully.',
+          icon: 'success',
+          confirmButtonColor: '#00ff9d'
+        }).then(() => {
+          window.location.href = "{% url 'order' %}";
+        });
+      })
+      .catch(error => {
+        console.error('Error details:', error);
+        Swal.fire({
+          title: 'Error',
+          html: `Failed: ${error.message}<br><br>Check browser console (F12) for more info.`,
+          icon: 'error',
+          confirmButtonColor: '#ff4d4d'
+        });
+      });
+    }
+  });
+}
+</script>
+</body>
+</html> 

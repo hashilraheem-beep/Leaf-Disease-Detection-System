@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard • Edit / Delete Diseases</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <!-- SweetAlert2 CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --bg-main: #0a0a0a;
+      --bg-card: #111111;
+      --text-main: #e0e0e0;
+      --text-muted: #888888;
+      --green: #00ff9d;
+      --green-dark: #00c47a;
+      --green-glow: rgba(0, 255, 157, 0.18);
+      --border: #222;
+      --red: #ff4d4d;
+      --red-glow: rgba(255, 77, 77, 0.18);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    .layout { display: grid; grid-template-columns: 240px 1fr; height: 100vh; }
+
+    .sidebar {
+      background: #0d0d0d;
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      overflow-y: auto;
+    }
+
+    .logo {
+      padding: 0 1.8rem 2rem;
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: var(--green);
+      letter-spacing: -1px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.95rem 1.8rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: var(--green-glow);
+      color: var(--green);
+    }
+
+    .nav-item i { width: 20px; text-align: center; }
+
+    .main-content { padding: 2rem 2.5rem; overflow-y: auto; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.2rem;
+    }
+
+    h1 { font-size: 1.9rem; font-weight: 600; }
+
+    .welcome { color: var(--text-muted); font-size: 0.95rem; }
+
+    .disease-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* ← even smaller cards */
+      gap: 1.4rem;
+    }
+
+    .disease-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .disease-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 40px var(--green-glow);
+      border-color: var(--green-dark);
+    }
+
+    .disease-image {
+      width: 100%;
+      height: 160px; /* ← much smaller image */
+      object-fit: cover;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .disease-image-placeholder {
+      width: 100%;
+      height: 160px;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .disease-content {
+      padding: 1.2rem; /* ← tighter padding */
+    }
+
+    .disease-name {
+      font-size: 1.25rem; /* ← smaller name */
+      color: var(--green);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .disease-plant {
+      font-size: 0.9rem; /* ← smaller plant text */
+      color: white;
+      margin-bottom: 0.8rem;
+    }
+
+    .disease-section {
+      margin-bottom: 0.9rem;
+    }
+
+    .disease-section h4 {
+      color: var(--green-dark);
+      font-size: 0.92rem;
+      margin-bottom: 0.35rem;
+      font-weight: 600;
+    }
+
+    .disease-text {
+      color: var(--text-muted);
+      line-height: 1.45;
+      font-size: 0.88rem; /* ← smaller description */
+      max-height: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .disease-actions {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1.1rem; /* ← smaller buttons */
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.82rem; /* smaller text */
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .btn-update {
+      background: var(--green);
+      color: #000;
+    }
+
+    .btn-delete {
+      background: var(--red);
+      color: white;
+    }
+
+    .btn-update:hover { background: var(--green-dark); transform: translateY(-1px); }
+    .btn-delete:hover { background: #cc0000; transform: translateY(-1px); }
+
+    .no-diseases {
+      text-align: center;
+      padding: 5rem 2rem;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+    }
+
+    .no-diseases i {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      color: var(--text-muted);
+    }
+
+    /* SweetAlert2 remains unchanged */
+    .swal2-popup {
+      background: #111111 !important;
+      border: 1px solid #222 !important;
+      border-radius: 16px !important;
+      box-shadow: 0 20px 60px rgba(0, 255, 157, 0.15) !important;
+    }
+
+    .swal2-title {
+      color: #ff4d4d !important;
+      font-size: 1.6rem !important;
+    }
+
+    .swal2-html-container {
+      color: #e0e0e0 !important;
+      font-size: 1.1rem !important;
+    }
+
+    .swal2-confirm {
+      background: #ff4d4d !important;
+      color: white !important;
+      border-radius: 10px !important;
+      padding: 12px 28px !important;
+      font-weight: 600 !important;
+    }
+
+    .swal2-confirm:hover {
+      background: #cc0000 !important;
+    }
+
+    .swal2-cancel {
+      background: #333 !important;
+      color: #e0e0e0 !important;
+      border: 1px solid #444 !important;
+      border-radius: 10px !important;
+      padding: 12px 28px !important;
+    }
+
+    .swal2-cancel:hover {
+      background: #444 !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">Leafix</div>
+    <a href="{% url 'adminhome' %}" class="nav-item"><i class="fas fa-home"></i> Home</a>
+    <a href="#" class="nav-item"><i class="fas fa-bug"></i> Disease</a>
+    <a href="{% url 'addDisease' %}" class="nav-item"><i class="fas fa-plus"></i> Add Disease</a>
+    <a href="{% url 'viewdisease' %}" class="nav-item"><i class="fas fa-eye"></i> View Diseases</a>
+    <a href="{% url 'editdisease' %}" class="nav-item active"><i class="fas fa-edit"></i> Edit Diseases</a>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header>
+      <div>
+        <h1>Edit / Delete Diseases</h1>
+        <div class="welcome">Manage all registered diseases • <span id="currentDate"></span></div>
+      </div>
+      <div style="color:var(--green); font-weight:500;">
+        <i class="fas fa-bell" style="font-size:1.3rem;"></i>
+      </div>
+    </header>
+
+    <!-- Smaller Disease Cards Grid -->
+    <div class="disease-grid">
+      {% if data %}
+        {% for disease in data %}
+          <div class="disease-card">
+            {% if disease.image %}
+              <img src="{{ disease.image.url }}" alt="{{ disease.diseasename }}" class="disease-image">
+            {% else %}
+              <div class="disease-image-placeholder">
+                No Image
+              </div>
+            {% endif %}
+
+            <div class="disease-content">
+              <div class="disease-name">{{ disease.diseasename|default:"Unnamed" }}</div>
+              <div class="disease-plant">
+                <i class="fas fa-seedling"></i> {{ disease.plant|default:"Unknown plant" }}
+              </div>
+
+              <div class="disease-section">
+                <h4>Description</h4>
+                <p class="disease-text">{{ disease.description|truncatewords:25|default:"No description" }}</p>
+              </div>
+
+              <!-- Smaller Action Buttons -->
+              <div class="disease-actions">
+                <a href="{% url 'updatedisease' disease.id %}" class="btn btn-update">
+                  <i class="fas fa-edit"></i> Update
+                </a>
+
+                <button class="btn btn-delete" onclick="confirmDelete('{% url 'deletedisease' disease.id %}', '{{ disease.diseasename|escapejs }}')">
+                  <i class="fas fa-trash-alt"></i> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="no-diseases">
+          <i class="fas fa-bug"></i>
+          <p>No diseases found in the database.</p>
+        </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+
+<script>
+// Dynamic date
+const today = new Date();
+document.getElementById('currentDate').textContent = 
+  today.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    month: 'short', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
+
+// Custom SweetAlert2 confirmation for Delete
+function confirmDelete(deleteUrl, diseaseName) {
+  Swal.fire({
+    title: 'Delete Disease?',
+    html: `Are you sure you want to delete <strong>"${diseaseName}"</strong>?<br>This action cannot be undone.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ff4d4d',
+    cancelButtonColor: '#444',
+    confirmButtonText: 'Yes, Delete',
+    cancelButtonText: 'Cancel',
+    background: '#111111',
+    color: '#e0e0e0',
+    backdrop: 'rgba(0,0,0,0.85)',
+    customClass: {
+      popup: 'swal-dark',
+      title: 'swal-title',
+      htmlContainer: 'swal-text',
+      confirmButton: 'swal-confirm',
+      cancelButton: 'swal-cancel'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = deleteUrl;
+    }
+  });
+}
+</script>
+
+</body>
+</html>

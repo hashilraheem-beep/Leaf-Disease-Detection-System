@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leaf Disease Detection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent-start: #c5f082;
+      --accent-mid: #d4ff6f;
+      --accent-end: #81c784;
+      --text: #f1f8e9;
+      --text-dim: #c8e6c9;
+      --modal-bg-start: #2a3d33;
+      --modal-bg-end: #1a2a22;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: var(--text);
+      position: relative;
+      overflow-x: hidden;
+      background: #0d1a12; /* same dark base as About page */
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url('https://i.pinimg.com/736x/c0/a8/a7/c0a8a72d665bedaae18d457e01e9986c.jpg') center/cover no-repeat;
+      opacity: 0.72;
+      filter: brightness(0.62) saturate(0.90) contrast(1.10);
+      z-index: -2;
+      pointer-events: none;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 50, 35, 0.48);
+      backdrop-filter: blur(2px);
+      z-index: -1;
+    }
+    .leaves-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .leaf {
+      position: absolute;
+      width: 70px;
+      height: 90px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.32;
+      animation: fall linear infinite;
+      will-change: transform, opacity;
+      pointer-events: none;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-120vh) rotate(0deg) translateX(0); opacity: 0; }
+      10% { opacity: 0.50; }
+      90% { opacity: 0.42; }
+      100% { transform: translateY(120vh) rotate(720deg) translateX(var(--sway)); opacity: 0; }
+    }
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 1.2rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(18, 32, 22, 0.90);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(129,199,132,0.30);
+    }
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #c5f082;
+      letter-spacing: 1px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.2rem;
+    }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: #c5f082;
+    }
+    main {
+      position: relative;
+      z-index: 5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 5%;
+      transition: background 0.3s ease;
+    }
+    main.drag-over {
+      background: rgba(129, 199, 132, 0.08);
+    }
+    h2.glow-text {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.8rem, 7.5vw, 5.8rem);
+      line-height: 0.85;
+      letter-spacing: -1px;
+      margin-bottom: 2.5rem;
+      background: linear-gradient(90deg, #c5f082, #a4e44d, #81c784);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow:
+        0 0 8px var(--glow-color),
+        0 0 16px var(--glow-color);
+    }
+    .subtitle {
+      font-size: clamp(1.1rem, 3vw, 1.4rem);
+      color: var(--text-dim);
+      max-width: 680px;
+      margin: 0 auto 3rem;
+      line-height: 1.5;
+    }
+    .upload-btn {
+      background: linear-gradient(135deg, #a4e44d, #81c784, #66bb6a);
+      color: #0f1a0f;
+      border: none;
+      padding: 0.9rem 2rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      box-shadow: 0 8px 30px rgba(102,187,106,0.4);
+      letter-spacing: 0.6px;
+      font-family: 'Poppins', sans-serif;
+    }
+    .upload-btn:hover {
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 14px 45px rgba(102,187,106,0.55);
+    }
+    .upload-area-hint {
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      color: var(--text-dim);
+      opacity: 0.85;
+    }
+
+    /* Modal styles unchanged */
+    .login-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 35, 25, 0.88);
+      backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .login-modal.active {
+      display: flex;
+      opacity: 1;
+    }
+    .modal-content {
+      background: linear-gradient(145deg, #2a3d33 0%, #1a2a22 100%);
+      padding: 2.8rem 2.2rem;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 440px;
+      width: 92%;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.55), 0 10px 30px rgba(0,0,0,0.35);
+      border: 1px solid rgba(129,199,132,0.22);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: scale(0.86) translateY(30px);
+      animation: modalEnter 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    @keyframes modalEnter {
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    .modal-header h2 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 0.9rem;
+      background: linear-gradient(90deg, #c5f082, #a4e44d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .modal-header p {
+      color: #c8e6c9;
+      font-size: 1.05rem;
+      line-height: 1.5;
+      margin-bottom: 2rem;
+    }
+    .modal-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.2rem;
+      margin-bottom: 1.6rem;
+    }
+    .modal-btn {
+      padding: 0.95rem 2.4rem;
+      font-size: 1.08rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.28s ease;
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .login-btn {
+      background: linear-gradient(135deg, #81c784, #66bb6a);
+      color: white;
+      box-shadow: 0 6px 20px rgba(102,187,106,0.4);
+    }
+    .login-btn:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 12px 35px rgba(102,187,106,0.55);
+      background: linear-gradient(135deg, #74b379, #5ca86c);
+    }
+    .login-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s;
+    }
+    .login-btn:hover::after {
+      transform: translateX(100%);
+    }
+    .close-btn {
+      background: #2e3d32;
+      color: #c8e6c9;
+      border: 1px solid #4a6b5f;
+    }
+    .close-btn:hover {
+      background: #3a4d42;
+      transform: translateY(-2px);
+    }
+    .modal-link {
+      color: #c5f082;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .modal-link:hover {
+      text-decoration: underline;
+      color: #d4ff6f;
+    }
+    .modal-footer {
+      color: #a5d6a7;
+      font-size: 0.98rem;
+      margin: 0;
+    }
+    .modal-leaves {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .modal-leaves::before,
+    .modal-leaves::after {
+      content: '';
+      position: absolute;
+      width: 28px;
+      height: 36px;
+      background: url('https://static.vecteezy.com/system/resources/thumbnails/040/216/920/small/ai-generated-mango-leaf-clip-art-free-png.png') center/contain no-repeat;
+      opacity: 0.18;
+      animation: floatLeaf 18s infinite linear;
+    }
+    .modal-leaves::after {
+      animation-delay: -9s;
+      left: 70%;
+      animation-duration: 22s;
+    }
+    @keyframes floatLeaf {
+      0% { transform: translate(-40vw, 120%) rotate(0deg); }
+      100% { transform: translate(140vw, -80%) rotate(540deg); }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 1rem 5%; flex-direction: column; gap: 1rem; }
+      .nav-links { flex-wrap: wrap; justify-content: center; gap: 1.4rem; }
+      .upload-btn { padding: 0.8rem 1.8rem; font-size: 0.98rem; }
+      .modal-content { padding: 2.2rem 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="overlay"></div>
+<div class="leaves-bg" id="leaves"></div>
+
+<nav>
+  <div class="logo">LEAFIX</div>
+  <div class="nav-links">
+    <a href="#" class="active">Home</a>
+    <a href="{% url 'login' %}">Sign in</a>
+    <a href="{% url 'signup' %}">Sign up</a>
+    <a href="{% url 'adminLogin' %}">Admin</a>
+    <a href="{% url 'indexabout' %}">About</a>
+  </div>
+</nav>
+
+<main id="dropZone">
+  <h2 class="glow-text">UPLOAD LEAF<br/>IMAGE</h2>
+  <p class="subtitle">
+    Upload your leaf image for disease detection
+  </p>
+  <button class="upload-btn" id="uploadButton">
+    UPLOAD LEAF IMAGE →
+  </button>
+  <p class="upload-area-hint">Click the button above or drag & drop your image here</p>
+  <input type="file" id="fileInput" accept="image/*" hidden>
+</main>
+
+<!-- Animated Login Modal -->
+<div id="loginModal" class="login-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Welcome Back 🌿</h2>
+      <p>Please log in to analyze your leaf images<br>and get disease insights.</p>
+    </div>
+    <div class="modal-buttons">
+<a href="{% url 'login' %}" class="modal-link">
+      <button class="modal-btn login-btn">Login Now</button></a>
+      <button class="modal-btn close-btn" onclick="closeLoginModal()">Close</button>
+    </div>
+    <p class="modal-footer">
+      New here? <a href="{% url 'signup' %}" class="modal-link">Create an account</a>
+    </p>
+    <div class="modal-leaves"></div>
+  </div>
+</div>
+
+<script>
+// ── Very slow falling leaves ────────────────────────────────
+const leafImages = [
+  'https://static.vecteezy.com/system/resources/thumbnails/040/216/920/small/ai-generated-mango-leaf-clip-art-free-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/022/218/957/small/yellow-leaves-isolated-on-a-transparent-background-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/022/025/136/small/brown-dried-leaf-isolated-on-a-transparent-background-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/040/216/920/small/ai-generated-mango-leaf-clip-art-free-png.png?w=120',
+  'https://pngfile.net/files/preview/1280x678/43817508871430jtlwdim482dx4cknq4d5re1ajvldggkgcqj7yvoze1htnp0y9ykzqc548zpw3d6d9gkqfq0lsu2z5k78n2ej0ltiq3jluycisqu.png?w=120'
+];
+
+function createLeaf(isInitial = false) {
+  const leaf = document.createElement('div');
+  leaf.className = 'leaf';
+  const randomImg = leafImages[Math.floor(Math.random() * leafImages.length)];
+  leaf.style.backgroundImage = `url('${randomImg}')`;
+  const scale = 0.5 + Math.random() * 1.1;
+  leaf.style.width = (70 * scale) + 'px';
+  leaf.style.height = (90 * scale) + 'px';
+  leaf.style.left = Math.random() * 100 + 'vw';
+  const duration = isInitial ? (15 + Math.random() * 15) : (30 + Math.random() * 20);
+  leaf.style.animationDuration = duration + 's';
+  const delay = isInitial ? (Math.random() * 6.5) : (Math.random() * 10);
+  leaf.style.animationDelay = delay + 's';
+  const sway = (Math.random() - 0.5) * 140 + 'vw';
+  leaf.style.setProperty('--sway', sway);
+  leaf.style.transform = `rotate(${Math.random() * 140 - 70}deg)`;
+  document.getElementById('leaves').appendChild(leaf);
+  setTimeout(() => leaf.remove(), (duration + 8) * 1000);
+}
+
+for (let i = 0; i < 32; i++) {
+  setTimeout(() => createLeaf(true), i * 200);
+}
+setInterval(() => createLeaf(false), 3000);
+
+// ── Drag & Drop + File Upload Logic ────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const uploadButton = document.getElementById('uploadButton');
+const loginModal = document.getElementById('loginModal');
+
+// Prevent default browser behavior
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+  dropZone.addEventListener(eventName, preventDefaults, false);
+  document.body.addEventListener(eventName, preventDefaults, false);
+});
+
+function preventDefaults(e) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+// Subtle highlight when dragging over
+['dragenter', 'dragover'].forEach(eventName => {
+  dropZone.addEventListener(eventName, () => {
+    dropZone.classList.add('drag-over');
+  }, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+  dropZone.addEventListener(eventName, () => {
+    dropZone.classList.remove('drag-over');
+  }, false);
+});
+
+// Handle dropped files — same as button: show modal if not logged in
+dropZone.addEventListener('drop', handleDrop, false);
+
+function handleDrop(e) {
+  const dt = e.dataTransfer;
+  const files = dt.files;
+  if (files.length > 0) {
+    if (!isUserLoggedIn()) {
+      showLoginModal();
+      return;
+    }
+    handleFiles(files);
+  }
+}
+
+function handleFiles(files) {
+  const file = files[0];
+  if (!file.type.startsWith('image/')) {
+    alert('Please upload an image file.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    alert(`Image ready for analysis:\nName: ${file.name}\nSize: ${(file.size / 1024).toFixed(1)} KB`);
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Button click logic ────────────────────────────────
+function isUserLoggedIn() {
+  return false; // ← Replace with real auth check later
+}
+
+uploadButton.addEventListener('click', (e) => {
+  if (!isUserLoggedIn()) {
+    e.preventDefault();
+    showLoginModal();
+    return;
+  }
+  fileInput.click();
+});
+
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files.length > 0) {
+    handleFiles(e.target.files);
+  }
+});
+
+// ── Modal Logic ────────────────────────────────
+function showLoginModal() {
+  loginModal.style.display = 'flex';
+  setTimeout(() => loginModal.classList.add('active'), 10);
+}
+
+function closeLoginModal() {
+  loginModal.classList.remove('active');
+  setTimeout(() => loginModal.style.display = 'none', 500);
+}
+
+loginModal.addEventListener('click', (e) => {
+  if (e.target === loginModal) closeLoginModal();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Leaf Disease Detection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --accent-start: #c5f082;
+      --accent-mid: #d4ff6f;
+      --accent-end: #81c784;
+      --text: #f1f8e9;
+      --text-dim: #c8e6c9;
+      --error: #ff6b6b;
+      --error-bg: rgba(220, 53, 69, 0.18);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: var(--text);
+      position: relative;
+      overflow-x: hidden;
+      background: #0d1a12;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url('https://i.pinimg.com/736x/c0/a8/a7/c0a8a72d665bedaae18d457e01e9986c.jpg') center/cover no-repeat;
+      opacity: 0.72;
+      filter: brightness(0.62) saturate(0.90) contrast(1.10);
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 50, 35, 0.48);
+      backdrop-filter: blur(2px);
+      z-index: -1;
+    }
+
+    .leaves-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .leaf {
+      position: absolute;
+      width: 70px;
+      height: 90px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.32;
+      animation: fall linear infinite;
+      will-change: transform, opacity;
+      pointer-events: none;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-120vh) rotate(0deg) translateX(0); opacity: 0; }
+      10% { opacity: 0.50; }
+      90% { opacity: 0.42; }
+      100% { transform: translateY(120vh) rotate(720deg) translateX(var(--sway)); opacity: 0; }
+    }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 1.2rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(18, 32, 22, 0.90);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(129,199,132,0.30);
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #c5f082;
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.2rem;
+    }
+
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: #c5f082;
+    }
+
+    main {
+      position: relative;
+      z-index: 5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 140px 5% 80px;
+    }
+
+    .register-card {
+      background: linear-gradient(145deg, #2a3d33 0%, #1a2a22 100%);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.55);
+      border: 1px solid rgba(129,199,132,0.22);
+      backdrop-filter: blur(8px);
+    }
+
+    .register-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 800;
+      font-size: 2.2rem;
+      text-align: center;
+      background: linear-gradient(90deg, #c5f082, #a4e44d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1.5rem;
+    }
+
+    .error-message {
+      background: var(--error-bg);
+      border-left: 5px solid var(--error);
+      color: #ffdddd;
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      margin: 1.2rem 0 2rem;
+      font-size: 0.98rem;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 1.6rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.95rem;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.9rem 1.2rem;
+      border: 1px solid rgba(129,199,132,0.3);
+      border-radius: 12px;
+      background: rgba(42,61,51,0.6);
+      color: var(--text);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #c5f082;
+      box-shadow: 0 0 12px rgba(197,240,130,0.3);
+    }
+
+    .form-group input.error {
+      border-color: var(--error);
+      box-shadow: 0 0 10px rgba(220,53,69,0.25);
+    }
+
+    .signup-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #a4e44d, #81c784, #66bb6a);
+      color: #0f1a0f;
+      border: none;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      box-shadow: 0 8px 30px rgba(102,187,106,0.4);
+      margin-top: 1.2rem;
+    }
+
+    .signup-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 45px rgba(102,187,106,0.55);
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 1.8rem;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+    }
+
+    .login-link a {
+      color: #c5f082;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .login-link a:hover {
+      color: #d4ff6f;
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      padding: 3rem 5% 2rem;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      border-top: 1px solid rgba(129,199,132,0.15);
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 5%; flex-direction: column; gap: 1rem; }
+      .nav-links { flex-wrap: wrap; justify-content: center; gap: 1.4rem; }
+      main { padding: 120px 5% 60px; }
+      .register-card { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="overlay"></div>
+<div class="leaves-bg" id="leaves"></div>
+
+<nav>
+  <div class="logo">LEAFIX</div>
+  <div class="nav-links">
+    <a href="{% url 'index' %}">Home</a>
+    <a href="#" class="active">Sign in</a>
+    <a href="{% url 'signup' %}">Sign up</a>
+    <a href="{% url 'adminLogin' %}">Admin</a>
+    <a href="{% url 'indexabout' %}">About</a>
+  </div>
+</nav>
+
+<main>
+  <div class="register-card">
+    <h1 class="register-title">Sign in</h1>
+
+    {% if messages %}
+      <div class="error-message">
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form id="loginForm" method="post" action="{% url 'userlogin' %}">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input name="username" type="text" id="username" required placeholder="Enter Username" value="{{ request.POST.username|default:'' }}">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="Enter password">
+      </div>
+
+      <button type="submit" class="signup-btn">sign in</button>
+    </form>
+
+    <div class="login-link">
+      Don't have an account? <a href="{% url 'signup' %}">Sign up</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  © 2026 Leaf Disease Detection — Made with love for healthier plants and better harvests.
+</footer>
+
+<script>
+// Falling leaves animation
+const leafImages = [
+  'https://static.vecteezy.com/system/resources/thumbnails/040/216/920/small/ai-generated-mango-leaf-clip-art-free-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/022/218/957/small/yellow-leaves-isolated-on-a-transparent-background-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/022/025/136/small/brown-dried-leaf-isolated-on-a-transparent-background-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/040/216/920/small/ai-generated-mango-leaf-clip-art-free-png.png?w=120',
+  'https://pngfile.net/files/preview/1280x678/43817508871430jtlwdim482dx4cknq4d5re1ajvldggkgcqj7yvoze1htnp0y9ykzqc548zpw3d6d9gkqfq0lsu2z5k78n2ej0ltiq3jluycisqu.png?w=120'
+];
+
+function createLeaf() {
+  const leaf = document.createElement('div');
+  leaf.className = 'leaf';
+  const randomImg = leafImages[Math.floor(Math.random() * leafImages.length)];
+  leaf.style.backgroundImage = `url('${randomImg}')`;
+  const scale = 0.5 + Math.random() * 1.1;
+  leaf.style.width = (70 * scale) + 'px';
+  leaf.style.height = (90 * scale) + 'px';
+  leaf.style.left = Math.random() * 100 + 'vw';
+  const duration = 30 + Math.random() * 20;
+  leaf.style.animationDuration = duration + 's';
+  leaf.style.animationDelay = Math.random() * 5 + 's';
+  const sway = (Math.random() - 0.5) * 140 + 'vw';
+  leaf.style.setProperty('--sway', sway);
+  leaf.style.transform = `rotate(${Math.random() * 140 - 70}deg)`;
+  document.getElementById('leaves').appendChild(leaf);
+  setTimeout(() => leaf.remove(), (duration + 8) * 1000);
+}
+
+// Start leaves
+for (let i = 0; i < 24; i++) {
+  setTimeout(createLeaf, i * 250);
+}
+setInterval(createLeaf, 2800);
+
+// Optional: highlight fields on error (visual feedback)
+{% if messages %}
+  document.getElementById('username').classList.add('error');
+  document.getElementById('password').classList.add('error');
+{% endif %}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About - Leaf Disease Detection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --accent-start: #c5f082;
+      --accent-mid:   #d4ff6f;
+      --accent-end:   #81c784;
+      --text:         #f1f8e9;
+      --text-dim:     #c8e6c9;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: var(--text);
+      position: relative;
+      overflow-x: hidden;
+      background: #0d1a12;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url('https://i.pinimg.com/736x/c0/a8/a7/c0a8a72d665bedaae18d457e01e9986c.jpg') center/cover no-repeat;
+      opacity: 0.72;
+      filter: brightness(0.62) saturate(0.90) contrast(1.10);
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 50, 35, 0.48);
+      backdrop-filter: blur(2px);
+      z-index: -1;
+    }
+
+    .leaves-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .leaf {
+      position: absolute;
+      width: 70px;
+      height: 90px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.32;
+      animation: fall linear infinite;
+      will-change: transform, opacity;
+      pointer-events: none;
+    }
+
+    @keyframes fall {
+      0%   { transform: translateY(-120vh) rotate(0deg) translateX(0); opacity: 0; }
+      10%  { opacity: 0.50; }
+      90%  { opacity: 0.42; }
+      100% { transform: translateY(120vh) rotate(720deg) translateX(var(--sway)); opacity: 0; }
+    }
+
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 1.2rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(18, 32, 22, 0.90);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(129,199,132,0.30);
+    }
+
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #c5f082;
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.2rem;
+    }
+
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: #c5f082;
+    }
+
+    main {
+      position: relative;
+      z-index: 5;
+      min-height: 100vh;
+      padding: 140px 5% 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.8rem, 6vw, 4.8rem);
+      text-align: center;
+      margin-bottom: 2.5rem;
+      background: linear-gradient(90deg, #c5f082, #a4e44d, #81c784);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(129,199,132,0.4);
+    }
+
+    .about-content {
+      font-size: 1.15rem;
+      line-height: 1.8;
+      color: var(--text-dim);
+      max-width: 900px;
+      margin: 0 auto 4rem;
+    }
+
+    .about-content p {
+      margin-bottom: 1.6rem;
+    }
+
+    .highlight {
+      color: #c5f082;
+      font-weight: 600;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+
+    .team-card {
+      background: rgba(42, 61, 51, 0.6);
+      border: 1px solid rgba(129,199,132,0.18);
+      border-radius: 16px;
+      padding: 1.6rem 1.2rem;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+    }
+
+    .team-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      border-color: rgba(197,240,130,0.35);
+    }
+
+    .team-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #81c784, #c5f082);
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #0f1a0f;
+    }
+
+    .team-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      color: #c5f082;
+    }
+
+    .team-role {
+      font-size: 0.95rem;
+      color: #a5d6a7;
+      margin-bottom: 0.8rem;
+    }
+
+    .team-desc {
+      font-size: 0.94rem;
+      color: #c8e6c9;
+      opacity: 0.9;
+    }
+
+    footer {
+      text-align: center;
+      padding: 3rem 5% 2rem;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      border-top: 1px solid rgba(129,199,132,0.15);
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 5%; flex-direction: column; gap: 1rem; }
+      .nav-links { flex-wrap: wrap; justify-content: center; gap: 1.4rem; }
+      main { padding: 120px 5% 60px; }
+      .team-grid { gap: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="overlay"></div>
+<div class="leaves-bg" id="leaves"></div>
+
+<nav>
+  <div class="logo">LEAFIX</div>
+  <div class="nav-links">
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'shop' %}">Shop</a>
+    <a href="{% url 'diseaseinfo' %}">Diseases & Precautions</a>
+    <a href="#" class="active">About</a>
+    {% if request.session.username %}
+      <a href="#" onclick="confirmLogout(event)">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}">Login</a>
+    {% endif %}
+  </div>
+</nav>
+
+<main>
+  <h1 class="section-title">About Us</h1>
+
+  <div class="about-content">
+    <p>We are a passionate team dedicated to helping farmers and plant enthusiasts <span class="highlight">detect and prevent leaf diseases</span> early using modern AI technology.</p>
+
+    <p>Our mission is simple: make advanced plant health monitoring accessible to everyone — from small-scale farmers in rural areas to home gardeners and large agricultural businesses.</p>
+
+    <p>By combining powerful machine learning models with an easy-to-use interface, we aim to reduce crop losses, minimize pesticide usage, and promote sustainable farming practices.</p>
+  </div>
+
+  <h2 class="section-title" style="font-size: clamp(2.2rem, 5vw, 3.8rem); margin: 5rem 0 3rem;"></h2>
+
+ <div class="team-grid">
+    <div class="team-card">
+      <div class="team-avatar">MA</div>
+      <div class="team-name">Mohamed Ashfaque</div>
+      <div class="team-role">Founder</div>
+      <div class="team-desc">This is my very first AI project — a leaf disease detection system, created as part of my college coursework.I’ve always been curious about how computer vision and machine learning can be used in agriculture. So I decided to build something practical: an app/model that helps identify plant diseases from just a photo of the leaf. Early detection can save crops, and I wanted to make something useful even if it's basic.It's still a learning journey for me, but I'm excited about what AI can do for farming!.</div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  © 2026 Leaf Disease Detection — Made with love for healthier plants and better harvests.
+</footer>
+
+<script>
+// Falling leaves — continuous & endless loop (no stop)
+const leafImages = [
+  'https://static.vecteezy.com/system/resources/thumbnails/040/216/920/small/ai-generated-mango-leaf-clip-art-free-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/022/218/957/small/yellow-leaves-isolated-on-a-transparent-background-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/022/025/136/small/brown-dried-leaf-isolated-on-a-transparent-background-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/040/216/920/small/ai-generated-mango-leaf-clip-art-free-png.png?w=120',
+  'https://pngfile.net/files/preview/1280x678/43817508871430jtlwdim482dx4cknq4d5re1ajvldggkgcqj7yvoze1htnp0y9ykzqc548zpw3d6d9gkqfq0lsu2z5k78n2ej0ltiq3jluycisqu.png?w=120'
+];
+
+function createLeaf() {
+  const leaf = document.createElement('div');
+  leaf.className = 'leaf';
+  const randomImg = leafImages[Math.floor(Math.random() * leafImages.length)];
+  leaf.style.backgroundImage = `url('${randomImg}')`;
+  const scale = 0.5 + Math.random() * 1.1;
+  leaf.style.width = (70 * scale) + 'px';
+  leaf.style.height = (90 * scale) + 'px';
+  leaf.style.left = Math.random() * 100 + 'vw';
+  const duration = 30 + Math.random() * 20; // slow fall
+  leaf.style.animationDuration = duration + 's';
+  leaf.style.animationDelay = Math.random() * 5 + 's'; // varied start
+  const sway = (Math.random() - 0.5) * 140 + 'vw';
+  leaf.style.setProperty('--sway', sway);
+  leaf.style.transform = `rotate(${Math.random() * 140 - 70}deg)`;
+  document.getElementById('leaves').appendChild(leaf);
+
+  // Remove after animation completes (prevents memory buildup)
+  setTimeout(() => leaf.remove(), (duration + 8) * 1000);
+}
+
+// Initial gentle burst to fill screen quickly
+for (let i = 0; i < 24; i++) {
+  setTimeout(createLeaf, i * 250); // ~6 seconds spread
+}
+
+// Continuous loop — new leaves forever
+setInterval(createLeaf, 2800); // new leaf every ~2.8 seconds on average
+</script>
+<script>
+function confirmLogout(event) {
+  event.preventDefault();
+
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You will be logged out of your LEAFIX account",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#e74c3c',          // var(--danger) – red for confirm (logout is destructive)
+    cancelButtonColor: '#81c784',           // var(--success) – green for cancel (stay)
+    confirmButtonText: 'Yes, Logout',
+    cancelButtonText: 'Stay Here',
+    background: 'rgba(26, 42, 34, 0.98)',   // dark green-tinted semi-transparent
+    color: '#f1f8e9',                       // light green-white text
+    backdrop: 'rgba(13, 26, 18, 0.85)',     // darker overlay
+    customClass: {
+      popup: 'swal2-nature-theme',
+      title: 'swal2-title-custom',
+      htmlContainer: 'swal2-text-custom',
+      confirmButton: 'swal2-confirm-custom',
+      cancelButton: 'swal2-cancel-custom'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: 'Logged Out!',
+        text: 'Come back soon for healthier plants 🌿',
+        icon: 'success',
+        confirmButtonColor: '#81c784',
+        background: 'rgba(26, 42, 34, 0.98)',
+        color: '#f1f8e9',
+        timer: 1800,
+        showConfirmButton: false
+      });
+
+      setTimeout(() => {
+        window.location.href = "{% url 'logout' %}";
+      }, 1800);
+    }
+  });
+}
+</script>
+<style>
+  /* Optional: extra styling for SweetAlert2 to better match your theme */
+  .swal2-nature-theme {
+    border: 1px solid rgba(129, 199, 132, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  }
+  .swal2-title-custom {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    color: var(--accent-start);           /* #c5f082 – bright green */
+  }
+  .swal2-text-custom {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-dim);               /* #c8e6c9 – soft green */
+  }
+  .swal2-confirm-custom, .swal2-cancel-custom {
+    font-weight: 600;
+    padding: 12px 28px !important;
+    border-radius: 30px !important;
+    font-size: 1.05rem !important;
+  }
+</style>
+</body>
+</html>

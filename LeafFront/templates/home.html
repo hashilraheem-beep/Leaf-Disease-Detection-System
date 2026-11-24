@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leaf Disease Detection - LEAFIX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- SweetAlert2 CDN - beautiful confirmation dialogs -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --accent-start: #c5f082;
+      --accent-mid: #d4ff6f;
+      --accent-end: #81c784;
+      --text: #f1f8e9;
+      --text-dim: #c8e6c9;
+      --success: #81c784;
+      --warning: #f4b942;
+      --danger: #e74c3c;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: var(--text);
+      position: relative;
+      overflow-x: hidden;
+      background: #0d1a12;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url('https://i.pinimg.com/736x/c0/a8/a7/c0a8a72d665bedaae18d457e01e9986c.jpg') center/cover no-repeat;
+      opacity: 0.72;
+      filter: brightness(0.62) saturate(0.90) contrast(1.10);
+      z-index: -2;
+      pointer-events: none;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 50, 35, 0.48);
+      backdrop-filter: blur(2px);
+      z-index: -1;
+    }
+    .leaves-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .leaf {
+      position: absolute;
+      width: 70px;
+      height: 90px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.32;
+      animation: fall linear infinite;
+      will-change: transform, opacity;
+      pointer-events: none;
+    }
+    @keyframes fall {
+      0%   { transform: translateY(-120vh) rotate(0deg) translateX(0); opacity: 0; }
+      10%  { opacity: 0.50; }
+      90%  { opacity: 0.42; }
+      100% { transform: translateY(120vh) rotate(720deg) translateX(var(--sway)); opacity: 0; }
+    }
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 1.2rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(18, 32, 22, 0.90);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(129,199,132,0.30);
+    }
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #c5f082;
+      letter-spacing: 1px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.2rem;
+    }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: #c5f082; }
+
+    main {
+      position: relative;
+      z-index: 5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 0 5%;
+      transition: background 0.3s ease;
+    }
+    main.drag-over { background: rgba(129, 199, 132, 0.08); }
+
+    h2.glow-text {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.8rem, 7.5vw, 5.8rem);
+      line-height: 0.85;
+      letter-spacing: -1px;
+      margin-bottom: 2.5rem;
+      background: linear-gradient(90deg, #c5f082, #a4e44d, #81c784);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: clamp(1.1rem, 3vw, 1.4rem);
+      color: var(--text-dim);
+      max-width: 680px;
+      margin: 0 auto 3rem;
+      line-height: 1.5;
+    }
+    .upload-btn {
+      background: linear-gradient(135deg, #a4e44d, #81c784, #66bb6a);
+      color: #0f1a0f;
+      border: none;
+      padding: 0.9rem 2.2rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      box-shadow: 0 8px 30px rgba(102,187,106,0.4);
+      letter-spacing: 0.6px;
+      font-family: 'Poppins', sans-serif;
+    }
+    .upload-btn:hover {
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 14px 45px rgba(102,187,106,0.55);
+    }
+    .upload-area-hint {
+      margin-top: 1.5rem;
+      font-size: 1rem;
+      color: var(--text-dim);
+      opacity: 0.85;
+    }
+    #fileInput { display: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 5%; flex-direction: column; gap: 1rem; }
+      .nav-links { flex-wrap: wrap; justify-content: center; gap: 1.4rem; }
+      .upload-btn { padding: 0.8rem 1.8rem; font-size: 0.98rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="overlay"></div>
+<div class="leaves-bg" id="leaves"></div>
+
+<nav>
+  <div class="logo">LEAFIX</div>
+  <div class="nav-links">
+    <a href="#" class="active">Home</a>
+    <a href="{% url 'shop' %}">Shop</a>
+    <a href="{% url 'diseaseinfo' %}">Diseases & Precautions</a>
+    <a href="{% url 'about' %}">About</a>
+    {% if request.session.username %}
+      <a href="#" onclick="confirmLogout(event)">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}">Login</a>
+    {% endif %}
+  </div>
+</nav>
+
+<main id="dropZone">
+  <h2 class="glow-text">UPLOAD LEAF<br/>IMAGE</h2>
+  <p class="subtitle">
+    Upload your leaf image for disease detection
+  </p>
+
+  <!-- Django form – this is what gets submitted -->
+  <form id="uploadForm" method="POST" enctype="multipart/form-data" action="{% url 'predictresult' %}">
+    {% csrf_token %}
+    <input type="file" name="leaf_image" id="fileInput" accept="image/*" required hidden>
+  </form>
+
+  <!-- Styled button triggers file input -->
+  <button type="button" class="upload-btn" id="uploadButton">
+    UPLOAD LEAF IMAGE →
+  </button>
+  <p class="upload-area-hint">Click the button above or drag & drop your image here</p>
+</main>
+
+<script>
+// Falling leaves
+const leafImages = [
+  'https://static.vecteezy.com/system/resources/thumbnails/040/216/920/small/ai-generated-mango-leaf-clip-art-free-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/022/218/957/small/yellow-leaves-isolated-on-a-transparent-background-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/022/025/136/small/brown-dried-leaf-isolated-on-a-transparent-background-png.png?w=120',
+  'https://pngfile.net/files/preview/1280x678/43817508871430jtlwdim482dx4cknq4d5re1ajvldggkgcqj7yvoze1htnp0y9ykzqc548zpw3d6d9gkqfq0lsu2z5k78n2ej0ltiq3jluycisqu.png?w=120'
+];
+
+function createLeaf(isInitial = false) {
+  const leaf = document.createElement('div');
+  leaf.className = 'leaf';
+  const randomImg = leafImages[Math.floor(Math.random() * leafImages.length)];
+  leaf.style.backgroundImage = `url('${randomImg}')`;
+  const scale = 0.5 + Math.random() * 1.1;
+  leaf.style.width  = (70 * scale) + 'px';
+  leaf.style.height = (90 * scale) + 'px';
+  leaf.style.left   = Math.random() * 100 + 'vw';
+  const duration = isInitial ? (15 + Math.random() * 15) : (30 + Math.random() * 20);
+  leaf.style.animationDuration = duration + 's';
+  leaf.style.animationDelay    = (isInitial ? Math.random()*6.5 : Math.random()*10) + 's';
+  const sway = (Math.random() - 0.5) * 140 + 'vw';
+  leaf.style.setProperty('--sway', sway);
+  leaf.style.transform = `rotate(${Math.random() * 140 - 70}deg)`;
+  document.getElementById('leaves').appendChild(leaf);
+  setTimeout(() => leaf.remove(), (duration + 8) * 1000);
+}
+
+for (let i = 0; i < 32; i++) setTimeout(() => createLeaf(true), i * 200);
+setInterval(() => createLeaf(false), 3000);
+
+// Drag & Drop + Auto-submit logic
+const dropZone   = document.getElementById('dropZone');
+const fileInput  = document.getElementById('fileInput');
+const uploadForm = document.getElementById('uploadForm');
+const uploadBtn  = document.getElementById('uploadButton');
+
+// Prevent defaults
+['dragenter','dragover','dragleave','drop'].forEach(evt => {
+  dropZone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); }, false);
+  document.body.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); }, false);
+});
+
+// Visual feedback
+['dragenter','dragover'].forEach(evt => dropZone.addEventListener(evt, () => dropZone.classList.add('drag-over'), false));
+['dragleave','drop'].forEach(evt => dropZone.addEventListener(evt, () => dropZone.classList.remove('drag-over'), false));
+
+// Drop → set file & submit
+dropZone.addEventListener('drop', e => {
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    fileInput.files = files;
+    uploadForm.submit();
+  }
+});
+
+// Button → open file picker
+uploadBtn.addEventListener('click', () => fileInput.click());
+
+// File selected → auto submit
+fileInput.addEventListener('change', () => {
+  if (fileInput.files.length > 0) {
+    uploadForm.submit();
+  }
+});
+
+// Modern Logout confirmation with SweetAlert2
+function confirmLogout(event) {
+  event.preventDefault();
+
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You will be logged out of your LEAFIX account",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: 'var(--danger)',     // #81c784
+    cancelButtonColor: 'var(--success)',       // #e74c3c
+    confirmButtonText: 'Yes, Logout',
+    cancelButtonText: 'Stay Here',
+    background: 'rgba(26, 42, 34, 0.98)',
+    color: 'var(--text)',
+    backdrop: 'rgba(13, 26, 18, 0.85)',
+    customClass: {
+      popup: 'swal2-nature-theme',
+      title: 'swal2-title-custom',
+      htmlContainer: 'swal2-text-custom',
+      confirmButton: 'swal2-confirm-custom',
+      cancelButton: 'swal2-cancel-custom'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Optional: show success message before redirect
+      Swal.fire({
+        title: 'Logged Out!',
+        text: 'Come back soon for healthier plants 🌿',
+        icon: 'success',
+        confirmButtonColor: 'var(--success)',
+        background: 'rgba(26, 42, 34, 0.98)',
+        color: 'var(--text)',
+        timer: 1800,
+        showConfirmButton: false
+      });
+
+      // Redirect to logout view
+      setTimeout(() => {
+        window.location.href = "{% url 'logout' %}";
+      }, 1800);
+    }
+  });
+}
+</script>
+
+<style>
+  /* Optional: extra styling for SweetAlert2 to better match your theme */
+  .swal2-nature-theme {
+    border: 1px solid rgba(129, 199, 132, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  }
+  .swal2-title-custom {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    color: var(--accent-start);
+  }
+  .swal2-text-custom {
+    font-family: 'Inter', sans-serif;
+    color: var(--text-dim);
+  }
+  .swal2-confirm-custom, .swal2-cancel-custom {
+    font-weight: 600;
+    padding: 12px 28px !important;
+    border-radius: 30px !important;
+    font-size: 1.05rem !important;
+  }
+</style>
+
+</body>
+</html>

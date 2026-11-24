@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard • Add Disease</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --bg-main: #0a0a0a;
+      --bg-card: #111111;
+      --text-main: #e0e0e0;
+      --text-muted: #888888;
+      --green: #00ff9d;
+      --green-dark: #00c47a;
+      --green-glow: rgba(0, 255, 157, 0.18);
+      --border: #222;
+      --error: #ff4d4d;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    .layout { display: grid; grid-template-columns: 240px 1fr; height: 100vh; }
+
+    .sidebar {
+      background: #0d0d0d;
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      overflow-y: auto;
+    }
+
+    .logo {
+      padding: 0 1.8rem 2rem;
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: var(--green);
+      letter-spacing: -1px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.95rem 1.8rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: var(--green-glow);
+      color: var(--green);
+    }
+
+    .nav-item i { width: 20px; text-align: center; }
+
+    .main-content { padding: 2rem 2.5rem; overflow-y: auto; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.2rem;
+    }
+
+    h1 { font-size: 1.8rem; font-weight: 600; }
+
+    .welcome { color: var(--text-muted); font-size: 0.95rem; }
+
+    .form-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .form-title {
+      color: var(--green);
+      margin-bottom: 2rem;
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .form-group { margin-bottom: 1.8rem; }
+
+    label {
+      display: block;
+      margin-bottom: 0.7rem;
+      color: var(--green-dark);
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 1rem 1.2rem;
+      background: #1a1a1a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 4px var(--green-glow);
+    }
+
+    textarea { min-height: 140px; resize: vertical; }
+
+    /* Custom File Upload */
+    .custom-file-upload {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin-top: 0.6rem;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--green-dark);
+      color: var(--green);
+      padding: 0.8rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-outline:hover {
+      background: var(--green-glow);
+      border-color: var(--green);
+    }
+
+    .file-name {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 340px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-info { margin-top: 0.6rem; font-size: 0.92rem; color: var(--text-muted); }
+
+    .image-preview-container { margin-top: 1.4rem; text-align: center; }
+
+    #imagePreview {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #000;
+      object-fit: contain;
+      display: none;
+    }
+
+    .error-message {
+      color: var(--error);
+      font-size: 0.92rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .required::after { content: " *"; color: var(--error); }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 2.8rem;
+    }
+
+    .btn {
+      padding: 0.9rem 1.8rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: black;
+    }
+
+    .btn-primary:hover {
+      background: var(--green-dark);
+      transform: translateY(-1px);
+    }
+
+    /* Success message - appears only after save */
+    .messages-container {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      max-width: 700px;
+      text-align: center;
+      width: 90%;
+    }
+
+    .alert {
+      padding: 18px 36px;
+      border-radius: 16px;
+      font-size: 1.35rem;
+      font-weight: 700;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+      display: inline-block;
+      min-width: 380px;
+      max-width: 100%;
+      background: var(--green);
+      color: #000;
+      border: 3px solid #000;
+      animation: slideUpFadeIn 0.6s ease-out, fadeOut 0.8s 6s forwards;
+    }
+
+    @keyframes slideUpFadeIn {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateY(30px); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">Leafix</div>
+    <a href="{% url 'adminhome' %}" class="nav-item"><i class="fas fa-home"></i> Home</a>
+    <a href="#" class="nav-item"><i class="fas fa-bug"></i> Disease</a>
+    <a href="{% url 'addDisease' %}" class="nav-item active"><i class="fas fa-plus"></i> Add Disease</a>
+    <a href="{% url 'viewdisease' %}" class="nav-item"><i class="fas fa-eye"></i> View Diseases</a>
+    <a href="{% url 'editdisease' %}" class="nav-item"><i class="fas fa-edit"></i> Edit Diseases</a>
+  </aside>
+
+  <!-- Main Area -->
+  <main class="main-content">
+    <header>
+      <div>
+        <h1>Add New Disease</h1>
+        <div class="welcome">Add new disease information • <span id="currentDate"></span></div>
+      </div>
+      <div style="color:var(--green); font-weight:500;">
+        <i class="fas fa-bell" style="font-size:1.3rem;"></i>
+      </div>
+    </header>
+
+    <!-- Success message only after save -->
+    {% if messages %}
+      <div class="messages-container">
+        {% for message in messages %}
+          {% if message.tags == 'success' %}
+            <div class="alert">
+              {{ message }}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Form Card -->
+    <div class="form-container">
+      <div class="form-title"><i class="fas fa-plus-circle"></i> Disease Details</div>
+
+      <form method="post" id="diseaseForm" action="{% url 'DiseaseSave' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label for="diseaseName" class="required">Disease Name</label>
+          <input name="diseasename" type="text" id="diseaseName" placeholder="e.g. Leaf Blast, Quick Wilt" required>
+          <div class="error-message" id="nameError">This field is required</div>
+        </div>
+
+        <div class="form-group">
+          <label for="plantName" class="required">Plant</label>
+          <input name="plant" type="text" id="plantName" placeholder="e.g. Rice, Coconut, Banana" required>
+          <div class="error-message" id="plantError">This field is required</div>
+        </div>
+
+        <div class="form-group">
+          <label for="description" class="required">Description</label>
+          <textarea name="description" id="description" rows="4" placeholder="Brief overview of the disease..." required></textarea>
+          <div class="error-message" id="descError">This field is required</div>
+        </div>
+
+        <div class="form-group">
+          <label for="symptoms" class="required">Symptoms</label>
+          <textarea name="symptoms" id="symptoms" rows="6" placeholder="List key visible symptoms..." required></textarea>
+          <div class="error-message" id="symptomsError">This field is required</div>
+        </div>
+
+        <div class="form-group">
+          <label for="treatment" class="required">Treatment & Management</label>
+          <textarea name="treatment" id="treatment" rows="8" placeholder="Prevention, cultural practices..." required></textarea>
+          <div class="error-message" id="treatmentError">This field is required</div>
+        </div>
+
+        <div class="form-group">
+          <label for="diseaseImage" class="required">Reference Image</label>
+          <input name="image" type="file" id="diseaseImage" accept="image/*" style="display:none;" required>
+          <div class="custom-file-upload" id="customUpload">
+            <button type="button" class="btn btn-outline" id="chooseFileBtn">
+              <i class="fas fa-upload"></i> Choose Image
+            </button>
+            <span id="fileNameDisplay" class="file-name">No file selected</span>
+          </div>
+          <div class="file-info">JPG, PNG recommended (max 5MB)</div>
+          <div class="error-message" id="imageError">Please choose an image</div>
+          <div class="image-preview-container">
+            <img id="imagePreview" alt="Preview" />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Disease</button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script>
+// Image preview + validation
+const fileInput = document.getElementById('diseaseImage');
+const chooseBtn = document.getElementById('chooseFileBtn');
+const fileNameSpan = document.getElementById('fileNameDisplay');
+const previewImg = document.getElementById('imagePreview');
+const imgError = document.getElementById('imageError');
+
+chooseBtn.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', function() {
+  const file = this.files[0];
+  imgError.style.display = 'none';
+  previewImg.style.display = 'none';
+
+  if (!file) {
+    fileNameSpan.textContent = 'No file selected';
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    imgError.textContent = 'File too large (max 5MB)';
+    imgError.style.display = 'block';
+    this.value = '';
+    return;
+  }
+
+  if (!file.type.startsWith('image/')) {
+    imgError.textContent = 'Only images allowed';
+    imgError.style.display = 'block';
+    this.value = '';
+    return;
+  }
+
+  fileNameSpan.textContent = file.name;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    previewImg.src = e.target.result;
+    previewImg.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+});
+
+// Form validation before submit
+document.getElementById('diseaseForm').addEventListener('submit', function(e) {
+  let valid = true;
+  document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+
+  const fields = [
+    { id: 'diseaseName', err: 'nameError' },
+    { id: 'plantName', err: 'plantError' },
+    { id: 'description', err: 'descError' },
+    { id: 'symptoms', err: 'symptomsError' },
+    { id: 'treatment', err: 'treatmentError' }
+  ];
+
+  fields.forEach(f => {
+    const input = document.getElementById(f.id);
+    if (!input.value.trim()) {
+      document.getElementById(f.err).style.display = 'block';
+      valid = false;
+    }
+  });
+
+  if (!fileInput.files || fileInput.files.length === 0) {
+    document.getElementById('imageError').textContent = 'Please choose an image';
+    document.getElementById('imageError').style.display = 'block';
+    valid = false;
+  }
+
+  if (!valid) {
+    e.preventDefault();
+  }
+});
+
+// Current date
+const today = new Date();
+document.getElementById('currentDate').textContent = 
+  today.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    month: 'short', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
+</script>
+
+</body>
+</html>

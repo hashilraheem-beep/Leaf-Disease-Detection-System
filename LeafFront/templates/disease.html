@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Diseases & Precautions - Leafix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --accent-start: #a4e44d;
+      --accent-mid: #ffeb3b;
+      --accent-end: #4caf50;
+      --text: #1a2a1f;
+      --text-dim: #4a6b5f;
+      --bg-card: rgba(249, 249, 245, 0.88);
+      --border-light: rgba(76,175,80,0.25);
+      --shadow: 0 10px 25px rgba(76,175,80,0.25);
+      --success: #81c784;
+      --warning: #f4b942;
+      --danger: #e74c3c;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: var(--text);
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url('https://i.pinimg.com/736x/c0/a8/a7/c0a8a72d665bedaae18d457e01e9986c.jpg') center/cover no-repeat;
+      opacity: 0.45;
+      filter: brightness(0.88) saturate(1.08) contrast(1.12);
+      z-index: -2;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(240, 250, 235, 0.60);
+      backdrop-filter: blur(2.5px);
+      z-index: -1;
+    }
+    .leaves-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .leaf {
+      position: absolute;
+      width: 70px;
+      height: 90px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.36;
+      animation: fall linear infinite;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-120vh) rotate(0deg) translateX(0); opacity: 0; }
+      10% { opacity: 0.52; }
+      90% { opacity: 0.46; }
+      100% { transform: translateY(120vh) rotate(720deg) translateX(var(--sway)); opacity: 0; }
+    }
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 1.2rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(249,249,245, 0.95);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(76,175,80,0.24);
+    }
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #4caf50;
+      letter-spacing: 1.2px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.2rem;
+    }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.97rem;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: #4caf50;
+    }
+    main {
+      position: relative;
+      z-index: 5;
+      padding: 140px 5% 90px;
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+    h1.page-title {
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.3rem;
+      color: #4caf50;
+      margin-bottom: 0.8rem;
+    }
+    .intro-text {
+      text-align: center;
+      font-size: 1.15rem;
+      color: var(--text-dim);
+      max-width: 820px;
+      margin: 0 auto 4rem;
+      line-height: 1.6;
+    }
+    .highlight { color: #4caf50; font-weight: 600; }
+
+    .diseases-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin: 0 auto;
+    }
+
+    .disease-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 18px;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 20px rgba(76,175,80,0.15);
+      display: flex;
+      flex-direction: column;
+      min-height: 420px;
+    }
+    .disease-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow);
+      border-color: rgba(76,175,80,0.4);
+    }
+    .disease-image {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-bottom: 3px solid rgba(76,175,80,0.3);
+    }
+    .card-content {
+      padding: 1.4rem 1.3rem 1.6rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .disease-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #4caf50;
+      margin-bottom: 0.9rem;
+      text-align: center;
+    }
+    .info-line {
+      font-size: 0.94rem;
+      color: var(--text-dim);
+      margin-bottom: 0.5rem;
+      line-height: 1.45;
+    }
+    .info-line strong {
+      color: #2e7d32;
+      font-weight: 600;
+    }
+    .section-title {
+      font-weight: 600;
+      color: #388e3c;
+      margin: 1rem 0 0.4rem;
+      font-size: 1rem;
+    }
+    .btn-container {
+      margin-top: auto;
+      text-align: center;
+      padding-top: 1.2rem;
+    }
+    .btn-view {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, #4caf50, #66bb6a);
+      color: white;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: none;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(76,175,80,0.3);
+    }
+    .btn-view:hover {
+      background: linear-gradient(135deg, #388e3c, #4caf50);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(76,175,80,0.45);
+    }
+    footer {
+      text-align: center;
+      padding: 3rem 5% 2rem;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      border-top: 1px solid rgba(76,175,80,0.18);
+    }
+
+    @media (max-width: 1100px) {
+      .diseases-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 720px) {
+      .diseases-grid { grid-template-columns: 1fr; }
+      nav { padding: 1rem 5%; flex-direction: column; gap: 1.2rem; }
+      .nav-links { gap: 1.6rem; flex-wrap: wrap; justify-content: center; }
+      main { padding: 120px 5% 80px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="overlay"></div>
+<div class="leaves-bg" id="leaves"></div>
+
+<nav>
+  <div class="logo">LEAFIX</div>
+  <div class="nav-links">
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'shop' %}">Shop</a>
+    <a href="#" class="active">Diseases & Precautions</a>
+    <a href="{% url 'about' %}">About</a>
+    <a href="{% url 'cart' %}">Cart</a>
+  </div>
+</nav>
+
+<main>
+  <h1 class="page-title">Common Plant Diseases & Precautions</h1>
+  <p class="intro-text">
+    Learn to identify and manage the most common plant diseases using natural and organic methods. 
+    Early detection + proper care = <span class="highlight">healthier plants</span> and better yields.
+  </p>
+
+  <div class="diseases-grid">
+
+    {% for d in disease %}
+      <div class="disease-card">
+        {% if d.image %}
+          <img src="{{ d.image.url }}" alt="{{ d.diseasename }}" class="disease-image">
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1625244724120-1fd1d34d00f6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+               alt="Placeholder - {{ d.diseasename }}" class="disease-image">
+        {% endif %}
+        
+        <div class="card-content">
+          <h2 class="disease-title">{{ d.diseasename }}</h2>
+          <div class="info-line"><strong>Plants :</strong> {{ d.plant|default:"All Plants" }}</div>
+          
+          <div class="section-title">Description</div>
+          <p class="info-line">{{ d.description|default:"Fungal or bacterial disease — varies by pathogen."|linebreaksbr }}</p>
+          
+          <div class="section-title">Symptoms</div>
+          <p class="info-line">{{ d.symptoms|default:"Brown/black circular spots, often with yellow halos; may merge."|linebreaksbr }}</p>
+          
+          <div class="section-title">Treatment & Precautions</div>
+          <p class="info-line">{{ d.treatment|default:"Remove affected leaves; avoid overhead watering; apply copper-based fungicide; improve airflow."|linebreaksbr }}</p>
+
+          
+        </div>
+      </div>
+    {% empty %}
+      <p style="grid-column: 1 / -1; text-align: center; font-size: 1.3rem; color: var(--text-dim); padding: 3rem 0;">
+        No diseases listed at the moment.
+      </p>
+    {% endfor %}
+
+  </div>
+</main>
+
+<footer>
+  © 2026 Leafix — Tools & treatments for healthier plants and better harvests. Made with love for sustainable farming.
+</footer>
+
+<!-- Falling leaves animation -->
+<script>
+const leafImages = [
+  'https://static.vecteezy.com/system/resources/thumbnails/040/216/920/small/ai-generated-mango-leaf-clip-art-free-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/022/218/957/small/yellow-leaves-isolated-on-a-transparent-background-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/previews/021/346/717/non_2x/brown-dried-leaf-isolated-on-a-transparent-background-png.png?w=120',
+  'https://pngfile.net/files/preview/1280x678/43817508871430jtlwdim482dx4cknq4d5re1ajvldggkgcqj7yvoze1htnp0y9ykzqc548zpw3d6d9gkqfq0lsu2z5k78n2ej0ltiq3jluycisqu.png?w=120'
+];
+
+function createLeaf() {
+  const leaf = document.createElement('div');
+  leaf.className = 'leaf';
+  const randomImg = leafImages[Math.floor(Math.random() * leafImages.length)];
+  leaf.style.backgroundImage = `url('${randomImg}')`;
+  const scale = 0.6 + Math.random() * 1.1;
+  leaf.style.width  = (70  * scale) + 'px';
+  leaf.style.height = (90  * scale) + 'px';
+  leaf.style.left   = Math.random() * 100 + 'vw';
+  const duration = 15 + Math.random() * 22;
+  leaf.style.animationDuration = duration + 's';
+  leaf.style.animationDelay    = Math.random() * 10 + 's';
+  const sway = (Math.random() - 0.5) * 140 + 'vw';
+  leaf.style.setProperty('--sway', sway);
+  document.getElementById('leaves').appendChild(leaf);
+  setTimeout(() => leaf.remove(), (duration + 8) * 1000);
+}
+
+setInterval(createLeaf, 700);
+for (let i = 0; i < 24; i++) setTimeout(createLeaf, i * 280);
+</script>
+
+
+</body>
+</html>

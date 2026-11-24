@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard • View Products</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <!-- SweetAlert2 for nice delete confirmation -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --bg-main: #0a0a0a;
+      --bg-card: #111111;
+      --text-main: #e0e0e0;
+      --text-muted: #888888;
+      --green: #00ff9d;
+      --green-dark: #00c47a;
+      --green-glow: rgba(0, 255, 157, 0.18);
+      --border: #222;
+      --red: #ff4d4d;
+      --red-glow: rgba(255, 77, 77, 0.18);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    .layout { display: grid; grid-template-columns: 240px 1fr; height: 100vh; }
+
+    .sidebar {
+      background: #0d0d0d;
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      overflow-y: auto;
+    }
+
+    .logo {
+      padding: 0 1.8rem 2rem;
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: var(--green);
+      letter-spacing: -1px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.95rem 1.8rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: var(--green-glow);
+      color: var(--green);
+    }
+
+    .nav-item i { width: 20px; text-align: center; }
+
+    .main-content { padding: 2rem 2.5rem; overflow-y: auto; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.2rem;
+    }
+
+    h1 { font-size: 1.9rem; font-weight: 600; }
+
+    .welcome { color: var(--text-muted); font-size: 0.95rem; }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* ← even smaller cards */
+      gap: 1.4rem;
+    }
+
+    .product-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 40px var(--green-glow);
+      border-color: var(--green-dark);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 160px; /* ← smaller image */
+      object-fit: cover;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .product-image-placeholder {
+      width: 100%;
+      height: 160px;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .product-content {
+      padding: 1.2rem; /* ← tighter padding */
+    }
+
+    .product-name {
+      font-size: 1.25rem; /* ← smaller name */
+      color: var(--green);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .product-pricing {
+      display: flex;
+      gap: 0.8rem;
+      margin-bottom: 0.9rem;
+      font-size: 0.92rem; /* ← smaller pricing text */
+    }
+
+    .product-mrp {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .product-price {
+      color: white;
+      font-weight: 600;
+    }
+
+    .product-desc {
+      color: var(--text-muted);
+      line-height: 1.45;
+      font-size: 0.88rem; /* ← smaller description */
+      margin-bottom: 1.1rem;
+      max-height: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1.1rem; /* ← smaller buttons */
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.82rem; /* smaller text */
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+
+    .btn-update {
+      background: var(--green);
+      color: #000;
+    }
+
+    .btn-delete {
+      background: var(--red);
+      color: white;
+    }
+
+    .btn-update:hover { background: var(--green-dark); transform: translateY(-1px); }
+    .btn-delete:hover { background: #cc0000; transform: translateY(-1px); }
+
+    .no-products {
+      text-align: center;
+      padding: 5rem 2rem;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+    }
+
+    .no-products i {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      color: var(--text-muted);
+    }
+
+    /* SweetAlert2 Dark Theme (unchanged) */
+    .swal2-popup {
+      background: #111111 !important;
+      border: 1px solid #222 !important;
+      border-radius: 16px !important;
+    }
+
+    .swal2-title {
+      color: #ff4d4d !important;
+    }
+
+    .swal2-html-container {
+      color: #e0e0e0 !important;
+    }
+
+    .swal2-confirm {
+      background: #ff4d4d !important;
+      color: white !important;
+    }
+
+    .swal2-cancel {
+      background: #444 !important;
+      color: #e0e0e0 !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">Leafix</div>
+    <a href="{% url 'adminhome' %}" class="nav-item"><i class="fas fa-home"></i> Home</a>
+    <a href="#" class="nav-item"><i class="fas fa-box"></i> Products</a>
+    <a href="{% url 'addproduct' %}" class="nav-item"><i class="fas fa-plus"></i> Add Product</a>
+    <a href="{% url 'viewproduct' %}" class="nav-item"><i class="fas fa-eye"></i> View Products</a>
+    <a href="#" class="nav-item active"><i class="fas fa-edit"></i> Edit Products</a>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header>
+      <div>
+        <h1>View Products</h1>
+        <div class="welcome">All products in catalog • <span id="currentDate"></span></div>
+      </div>
+      <div style="color:var(--green); font-weight:500;">
+        <i class="fas fa-bell" style="font-size:1.3rem;"></i>
+      </div>
+    </header>
+
+    <!-- Smaller Product Cards Grid -->
+    <div class="product-grid">
+      {% if products %}
+        {% for product in products %}
+          <div class="product-card">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.productname }}" class="product-image">
+            {% else %}
+              <div class="product-image-placeholder">
+                No Image
+              </div>
+            {% endif %}
+
+            <div class="product-content">
+              <div class="product-name">{{ product.productname|default:"Unnamed Product" }}</div>
+
+              <div class="product-pricing">
+                <span class="product-mrp">MRP: ₹{{ product.mrp|floatformat:2 }}</span>
+                <span class="product-price">Price: ₹{{ product.price|floatformat:2 }}</span>
+              </div>
+
+              <p class="product-desc">
+                {{ product.description|truncatewords:25|default:"No description provided." }}
+              </p>
+
+              <!-- Smaller Action Buttons -->
+              <div class="product-actions">
+                <a href="{% url 'updateproduct' product.id %}" class="btn btn-update">
+                  <i class="fas fa-edit"></i> Update
+                </a>
+
+                <button class="btn btn-delete" onclick="confirmDelete('{% url 'deleteproduct' product.id %}', '{{ product.productname|escapejs }}')">
+                  <i class="fas fa-trash-alt"></i> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="no-products">
+          <i class="fas fa-box-open"></i>
+          <p>No products found in the catalog.</p>
+        </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+
+<script>
+// Dynamic date
+const today = new Date();
+document.getElementById('currentDate').textContent = 
+  today.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    month: 'short', 
+    day: 'numeric', 
+    year: 'numeric' 
+  });
+
+// Custom SweetAlert2 Delete Confirmation
+function confirmDelete(deleteUrl, productName) {
+  Swal.fire({
+    title: 'Delete Product?',
+    html: `Are you sure you want to delete <strong>"${productName}"</strong>?<br>This action cannot be undone.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ff4d4d',
+    cancelButtonColor: '#444',
+    confirmButtonText: 'Yes, Delete',
+    cancelButtonText: 'Cancel',
+    background: '#111111',
+    color: '#e0e0e0',
+    backdrop: 'rgba(0,0,0,0.85)'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = deleteUrl;
+    }
+  });
+}
+</script>
+
+</body>
+</html>

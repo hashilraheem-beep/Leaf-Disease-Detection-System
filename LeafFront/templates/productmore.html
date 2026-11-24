@@ -1,0 +1,465 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ product.productname }} - Leafix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root {
+      --accent-start: #a4e44d;
+      --accent-mid: #ffeb3b;
+      --accent-end: #4caf50;
+      --text: #1a2a1f;
+      --text-dim: #4a6b5f;
+      --bg-white: #ffffff;
+      --border-light: #e0e0e0;
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+      --star-gold: #ffc107;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      color: var(--text);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ─── Background image + overlay (same as Shop page) ─── */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url('https://i.pinimg.com/736x/c0/a8/a7/c0a8a72d665bedaae18d457e01e9986c.jpg') center/cover no-repeat;
+      opacity: 0.48;
+      filter: brightness(0.85) saturate(1.05) contrast(1.1);
+      z-index: -2;
+      pointer-events: none;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(240, 250, 235, 0.58);
+      backdrop-filter: blur(2px);
+      z-index: -1;
+    }
+
+    .leaves-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .leaf {
+      position: absolute;
+      width: 60px;
+      height: 80px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.15;
+      animation: fall linear infinite;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-120vh) rotate(0deg) translateX(0); opacity: 0; }
+      10% { opacity: 0.25; }
+      90% { opacity: 0.20; }
+      100% { transform: translateY(120vh) rotate(720deg) translateX(var(--sway)); opacity: 0; }
+    }
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      padding: 1.2rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.96);
+      border-bottom: 1px solid var(--border-light);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent-end);
+      letter-spacing: 1px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 2.2rem;
+    }
+    .nav-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--accent-end);
+    }
+    main {
+      position: relative;
+      z-index: 5;
+      padding: 140px 5% 100px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .product-detail {
+      background: var(--bg-white);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-light);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    .product-image-large {
+      width: 100%;
+      height: auto;
+      max-height: 500px;
+      object-fit: cover;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+    .product-image-large-placeholder {
+      width: 100%;
+      height: 400px;
+      background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .product-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--accent-end);
+      line-height: 1.1;
+    }
+    .product-pricing {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+    .product-mrp {
+      color: #888;
+      text-decoration: line-through;
+      font-size: 1.4rem;
+    }
+    .product-price {
+      color: var(--text);
+    }
+    .product-desc {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: var(--text-dim);
+    }
+    .rating-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 1.2rem;
+      margin: 1rem 0;
+    }
+    .stars {
+      color: var(--star-gold);
+      font-size: 1.3rem;
+    }
+    .review-count {
+      color: var(--text-dim);
+    }
+    .action-buttons {
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin: 1.5rem 0 1rem 0;
+    }
+    .btn-action {
+      padding: 0.9rem 1.8rem;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-add {
+      background: linear-gradient(135deg, var(--accent-start), var(--accent-mid), var(--accent-end));
+      color: #1a2a1f;
+    }
+    .btn-add:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 30px rgba(76,175,80,0.3);
+    }
+    .btn-review {
+      background: var(--star-gold);
+      color: #1a2a1f;
+    }
+    .btn-review:hover {
+      background: #ffca2c;
+      transform: scale(1.05);
+    }
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent-end);
+      font-weight: 600;
+      font-size: 1.1rem;
+      text-decoration: none;
+      transition: all 0.3s;
+      margin-bottom: 1.5rem;
+    }
+    .btn-back:hover {
+      color: #388e3c;
+      transform: translateX(-5px);
+    }
+    .reviews-section {
+      margin-top: 0;
+      padding: 2rem 0 0 0;
+      border-top: 1px solid var(--border-light);
+    }
+    .reviews-title {
+      font-size: 1.5rem;
+      color: var(--accent-end);
+      margin-bottom: 1.2rem;
+      font-weight: 700;
+    }
+    .review-item {
+      background: rgba(249,249,245,0.7);
+      padding: 1.3rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+    .review-author {
+      font-weight: 600;
+      color: var(--accent-end);
+      font-size: 1.05rem;
+    }
+    .review-date {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+    .review-stars {
+      color: var(--star-gold);
+      font-size: 1.1rem;
+    }
+    .review-text {
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+    footer {
+      text-align: center;
+      padding: 3rem 5% 2rem;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      border-top: 1px solid var(--border-light);
+    }
+
+    @media (max-width: 992px) {
+      .product-detail { grid-template-columns: 1fr; gap: 2.5rem; }
+      .reviews-section { order: 3; }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 1rem 5%; flex-direction: column; gap: 1rem; }
+      .nav-links { flex-wrap: wrap; justify-content: center; gap: 1.4rem; }
+      main { padding: 120px 5% 60px; }
+      .action-buttons { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="overlay"></div>
+<div class="leaves-bg" id="leaves"></div>
+
+<nav>
+  <div class="logo">LEAFIX</div>
+  <div class="nav-links">
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'shop' %}">Shop</a>
+    <a href="{% url 'diseaseinfo' %}">Diseases & Precautions</a>
+    <a href="{% url 'about' %}">About</a>
+    <a href="{% url 'cart' %}">Cart</a>
+  </div>
+</nav>
+
+<main>
+  <div class="product-detail">
+    <!-- Left column: Image + Reviews -->
+    <div>
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.productname }}" class="product-image-large">
+      {% else %}
+        <div class="product-image-large-placeholder">No Image Available</div>
+      {% endif %}
+
+      <!-- Reviews section -->
+      <div class="reviews-section">
+        <h3 class="reviews-title">
+          Customer Reviews {% if reviews %}({{ reviews|length }}){% endif %}
+        </h3>
+
+        {% if reviews %}
+          {% for review in reviews %}
+            <div class="review-item">
+              <div class="review-header">
+                <span class="review-author">{{ review.user.username }}</span>
+                <span class="review-date">{{ review.created_at|date:"d M Y" }}</span>
+              </div>
+              <div class="review-stars">
+                {% for i in "12345" %}
+                  <i class="fas fa-star{% if forloop.counter > review.rating %} fa-regular{% endif %}"></i>
+                {% endfor %}
+              </div>
+              <p class="review-text">{{ review.comment|linebreaksbr }}</p>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p style="color: var(--text-dim); font-style: italic; text-align: center; padding: 1.5rem 0;">
+            No reviews yet. Be the first to share your experience!
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right column: Product info + buttons -->
+    <div class="product-info">
+      <h1 class="product-title">{{ product.productname }}</h1>
+
+      <div class="product-pricing">
+        <span class="product-mrp">MRP: ₹{{ product.mrp|floatformat:2 }}</span>
+        <span class="product-price">₹{{ product.price|floatformat:2 }} 1kg</span>
+      </div>
+
+      <div class="rating-section">
+        <span class="stars">
+          {% for i in "12345" %}
+            <i class="fas fa-star{% if forloop.counter > product.avg_rating %} fa-regular{% endif %}"></i>
+          {% endfor %}
+        </span>
+        <span class="review-count">{{ product.review_count }}</span>
+      </div>
+
+      <p class="product-desc">
+        {{ product.description|linebreaksbr|default:"No detailed description available." }}
+      </p>
+
+      <div class="action-buttons">
+        <form method="POST" action="{% url 'addtocart' product.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn-action btn-add">
+            <i class="fas fa-cart-plus"></i> Add to Cart
+          </button>
+        </form>
+        <button class="btn-action btn-review" onclick="openReviewModal()">
+          <i class="fas fa-star"></i> Add Review
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  © 2026 Leafix — Tools & treatments for healthier plants and better harvests. Made with love for sustainable farming.
+</footer>
+
+<!-- Review Modal -->
+<div id="reviewModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:var(--bg-white); padding:2rem; border-radius:16px; width:90%; max-width:500px; box-shadow:var(--shadow); border:1px solid var(--border-light);">
+    <h2 style="color:var(--accent-end); margin-bottom:1.5rem;">Write a Review</h2>
+    <form id="reviewForm" method="post" action="#">
+      {% csrf_token %}
+      <label style="display:block; margin-bottom:0.5rem; color:var(--accent-end);">Rating (1-5):</label>
+      <select name="rating" required style="width:100%; padding:0.8rem; border-radius:8px; margin-bottom:1rem; border:1px solid var(--border-light);">
+        <option value="5">5 - Excellent</option>
+        <option value="4">4 - Good</option>
+        <option value="3">3 - Average</option>
+        <option value="2">2 - Poor</option>
+        <option value="1">1 - Very Poor</option>
+      </select>
+      <label style="display:block; margin-bottom:0.5rem; color:var(--accent-end);">Your Review:</label>
+      <textarea name="comment" rows="5" required style="width:100%; padding:0.8rem; border-radius:8px; margin-bottom:1.5rem; border:1px solid var(--border-light);"></textarea>
+      <div style="display:flex; gap:1rem; justify-content:flex-end; margin-top:1.5rem;">
+        <button type="button" onclick="document.getElementById('reviewModal').style.display='none'" style="background:#666; color:white; padding:0.8rem 1.5rem; border:none; border-radius:50px; cursor:pointer;">Cancel</button>
+        <button type="submit" style="background:var(--accent-end); color:white; padding:0.8rem 1.5rem; border:none; border-radius:50px; cursor:pointer;">Submit Review</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Falling leaves animation (same as Shop page)
+const leafImages = [
+  'https://static.vecteezy.com/system/resources/thumbnails/040/216/920/small/ai-generated-mango-leaf-clip-art-free-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/thumbnails/022/218/957/small/yellow-leaves-isolated-on-a-transparent-background-png.png?w=120',
+  'https://static.vecteezy.com/system/resources/previews/021/346/717/non_2x/brown-dried-leaf-isolated-on-a-transparent-background-png.png?w=120',
+  'https://pngfile.net/files/preview/1280x678/43817508871430jtlwdim482dx4cknq4d5re1ajvldggkgcqj7yvoze1htnp0y9ykzqc548zpw3d6d9gkqfq0lsu2z5k78n2ej0ltiq3jluycisqu.png?w=120'
+];
+
+function createLeaf() {
+  const leaf = document.createElement('div');
+  leaf.className = 'leaf';
+  const randomImg = leafImages[Math.floor(Math.random() * leafImages.length)];
+  leaf.style.backgroundImage = `url('${randomImg}')`;
+  const scale = 0.6 + Math.random() * 1.0;
+  leaf.style.width = (70 * scale) + 'px';
+  leaf.style.height = (90 * scale) + 'px';
+  leaf.style.left = Math.random() * 100 + 'vw';
+  const duration = 16 + Math.random() * 20;
+  leaf.style.animationDuration = duration + 's';
+  leaf.style.animationDelay = Math.random() * 12 + 's';
+  const sway = (Math.random() - 0.5) * 120 + 'vw';
+  leaf.style.setProperty('--sway', sway);
+  leaf.style.transform = `rotate(${Math.random() * 100 - 50}deg)`;
+  document.getElementById('leaves').appendChild(leaf);
+  setTimeout(() => leaf.remove(), (duration + 6) * 1000);
+}
+
+setInterval(createLeaf, 650);
+for (let i = 0; i < 22; i++) {
+  setTimeout(createLeaf, i * 300);
+}
+
+// Open review modal
+function openReviewModal() {
+  document.getElementById('reviewModal').style.display = 'flex';
+}
+</script>
+
+</body>
+</html>

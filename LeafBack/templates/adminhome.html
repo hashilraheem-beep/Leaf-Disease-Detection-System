@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard • Home</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --bg-main: #0a0a0a;
+      --bg-card: #111111;
+      --text-main: #e0e0e0;
+      --text-muted: #888888;
+      --green: #00ff9d;
+      --green-dark: #00c47a;
+      --green-glow: rgba(0, 255, 157, 0.18);
+      --border: #222;
+      --error: #ff4d4d;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: #0d0d0d;
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      overflow-y: auto;
+    }
+
+    .logo {
+      padding: 0 1.8rem 2rem;
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: var(--green);
+      letter-spacing: -1px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.95rem 1.8rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: var(--green-glow);
+      color: var(--green);
+    }
+
+    .nav-item i {
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Logout styling */
+    .logout-item {
+      margin-top: 2rem;
+      color: var(--error) !important;
+      font-weight: 600;
+    }
+
+    .logout-item:hover {
+      background: rgba(255, 77, 77, 0.15) !important;
+      color: white !important;
+      border-left: 4px solid var(--error);
+      padding-left: 1.2rem;
+      transition: all 0.2s;
+    }
+
+    .logout-item i {
+      color: var(--error);
+    }
+
+    .logout-item:hover i {
+      color: white;
+    }
+
+    /* Main content */
+    .main-content {
+      padding: 2rem 2.5rem;
+      overflow-y: auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.2rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .welcome {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.4rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.6rem;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,255,157,0.08);
+    }
+
+    .stat-icon {
+      font-size: 1.8rem;
+      color: var(--green);
+      margin-bottom: 1rem;
+    }
+
+    .stat-value {
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin: 0.3rem 0;
+      color: white;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .stat-change {
+      font-size: 0.9rem;
+      margin-top: 0.8rem;
+      display: inline-block;
+    }
+
+    .positive { color: var(--green); }
+    .negative { color: #ff4d4d; }
+
+    /* Recent activity */
+    .recent-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.8rem;
+    }
+
+    .section-title {
+      margin-bottom: 1.4rem;
+      color: white;
+      font-size: 1.25rem;
+    }
+
+    .activity-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .activity-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--green);
+      display: grid;
+      place-items: center;
+      color: black;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .activity-time {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* SweetAlert2 customization - RED confirm button */
+    .swal-dark-theme {
+      border: 1px solid #222 !important;
+      border-radius: 16px !important;
+      box-shadow: 0 20px 60px rgba(0, 255, 157, 0.12) !important;
+    }
+
+    .swal-title {
+      color: #ff4d4d !important;
+      font-weight: 700 !important;
+    }
+
+    .swal-text {
+      color: #e0e0e0 !important;
+      font-size: 1.1rem !important;
+    }
+
+    .swal-confirm-btn {
+      background: #ff4d4d !important;           /* RED */
+      color: white !important;
+      font-weight: 700 !important;
+      border-radius: 10px !important;
+      padding: 12px 28px !important;
+      transition: background 0.2s ease;
+    }
+
+    .swal-confirm-btn:hover {
+      background: #cc0000 !important;           /* darker red on hover */
+    }
+
+    .swal-cancel-btn {
+      background: #333 !important;
+      color: #e0e0e0 !important;
+      border: 1px solid #444 !important;
+      border-radius: 10px !important;
+      padding: 12px 28px !important;
+    }
+
+    .swal-cancel-btn:hover {
+      background: #444 !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">Leafix</div>
+    
+    <a href="#" class="nav-item active"><i class="fas fa-home"></i> Home</a>
+    <a href="{% url 'users' %}" class="nav-item"><i class="fas fa-users"></i> Users</a>
+    <a href="{% url 'addDisease' %}" class="nav-item"><i class="fas fa-bug"></i> Disease</a>
+    <a href="{% url 'order' %}" class="nav-item"><i class="fas fa-cart-shopping"></i> Orders</a>
+    <a href="{% url 'addproduct' %}" class="nav-item"><i class="fas fa-box"></i> Products</a>
+
+    
+    <!-- Logout with red confirmation -->
+    <a href="#" class="nav-item logout-item" onclick="confirmLogout()">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+  </aside>
+
+  <!-- Main Area -->
+  <main class="main-content">
+    <header>
+      <div>
+        <h1>Dashboard</h1>
+        {% if request.session.username %}
+          <div class="welcome">Welcome back, {{request.session.username}} • <span id="currentDate"></span></div>
+        {% endif %}
+      </div>
+      <div style="color:var(--green); font-weight:500;">
+        <i class="fas fa-bell" style="font-size:1.3rem;"></i>
+      </div>
+    </header>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-value">{{ total_users|default:"0" }}</div>
+        <div class="stat-label">Total Users</div>
+        <div class="stat-change positive">+{{ new_users.username }}  new user</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-cart-shopping"></i></div>
+        <div class="stat-value">{{pendingorders|default:"0"}}</div>
+        <div class="stat-label">Orders</div>
+        <div class="stat-change positive">Order #{{ last_order.id }} by {{ last_order.username }}</div>
+      </div>
+
+
+    </div>
+
+    <!-- Recent Activity -->
+     <h3>Recent Activity</h3>
+
+{% if all_orders %}
+    {% for o in all_orders %}
+    <div class="activity-item">
+      <div class="activity-left">
+        <div class="activity-avatar">
+          {{ o.username|slice:":1"|upper }}
+        </div>
+        <div>
+          <strong>{{ o.username }}</strong> placed order #{{ o.id }}
+          <div class="activity-time">
+            {{ o.created_at|timesince }} ago
+          </div>
+        </div>
+      </div>
+      <div style="color:var(--green);">
+        ₹{{ o.totalprice }}
+      </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <p>No recent activity</p>
+{% endif %}
+   
+  </main>
+</div>
+
+<script>
+function confirmLogout() {
+  Swal.fire({
+    title: 'Logout?',
+    text: "Are you sure you want to logout?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ff4d4d',           // RED for "Yes, Logout"
+    cancelButtonColor: '#444',               // dark gray for Cancel
+    confirmButtonText: 'Yes, Logout',
+    cancelButtonText: 'Cancel',
+    background: '#111111',
+    color: '#e0e0e0',
+    backdrop: 'rgba(10,10,10,0.85)',
+    customClass: {
+      popup: 'swal-dark-theme',
+      title: 'swal-title',
+      htmlContainer: 'swal-text',
+      confirmButton: 'swal-confirm-btn',
+      cancelButton: 'swal-cancel-btn'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = "{% url 'AdminLogout' %}";
+    }
+  });
+}
+
+// Dynamic date
+const today = new Date();
+const options = { 
+  weekday: 'long', 
+  month: 'short', 
+  day: 'numeric',
+  year: 'numeric' 
+};
+document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US', options);
+</script>
+
+</body>
+</html>

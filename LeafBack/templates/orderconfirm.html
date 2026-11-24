@@ -1,0 +1,11 @@
+<form method="POST" action="{% url 'confirm_order' %}">
+  {% csrf_token %}
+
+  <input type="hidden" name="product" value="Cart Order">
+  <input type="hidden" name="quantity" value="{{ data|length }}">
+  <input type="hidden" name="total_price" value="{{ totalprice }}">
+
+  <button type="submit" class="btn-checkout" id="payNowBtn" disabled>
+    Confirm Order ₹ {{ totalprice }}
+  </button>
+</form>
